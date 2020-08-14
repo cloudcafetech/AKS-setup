@@ -28,7 +28,7 @@ sudo yum install azure-cli -y
 
 ```
 az login 
-az account set --subscription "Microsoft Azure XXXX"
+az account set --subscription "Free Trial"
 az account show --output table
 ```
 ##### - First Create a resource group to manage the AKS cluster resources.
