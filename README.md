@@ -3,7 +3,7 @@ Managed Kubernetes simplifies deployment, management and operations of Kubernete
 Here we are going to setup AKS.
 
 <p align="center">
-  <img src="https://github.com/prasenforu/Kube-platform/blob/master/AKS/aks-architecture.PNG">
+  <img src="https://github.com/cloudcafetech/AKS-setup/blob/master/aks-architecture.PNG">
 </p>
 
 ### Setup Azure Kubernetes Service (AKS)
