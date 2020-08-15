@@ -33,16 +33,18 @@ az account show --output table
 ```
 ##### - First Create a resource group to manage the AKS cluster resources.
 
-```az group create --name pkar-aks-rg --location eastus```
+```
+RG=pkar-aks-rg
+az group create --name $RG --location northeurope
+```
 
 ##### -  Create the Virtual Network (vnet) and the subnet 
 
 ```
-az network vnet create --resource-group pkar-aks-rg --name pkar-aks-vnet --address-prefixes 10.20.0.0/16 --subnet-name pkar-aks-prod-subnet --subnet-prefix 10.20.1.0/24
-az network vnet subnet create --resource-group pkar-aks-rg --vnet-name pkar-aks-vnet --address-prefixes 10.20.2.0/24 -n pkar-aks-uat-subnet
-az network vnet subnet create --resource-group pkar-aks-rg --vnet-name pkar-aks-vnet --address-prefixes 10.20.3.0/24 -n pkar-aks-sit-subnet
-az network vnet create --resource-group pkar-aks-rg --name pkar-mgm-vnet --address-prefixes 10.30.0.0/16 --subnet-name pkar-mgm-bastion-subnet --subnet-prefix 10.30.1.0/24
-az network vnet create --resource-group pkar-aks-rg --name pkar-mgm-vnet --address-prefixes 10.30.0.0/16 --subnet-name pkar-mgm-appsgw-subnet --subnet-prefix 10.30.2.0/24
+az network vnet create --resource-group $RG --name pkar-aks-vnet --address-prefixes 10.20.0.0/16 --subnet-name pkar-aks-prod-subnet --subnet-prefix 10.20.1.0/24
+az network vnet subnet create --resource-group $RG --vnet-name pkar-aks-vnet --address-prefixes 10.20.2.0/24 -n pkar-aks-test-subnet
+az network vnet create --resource-group $RG --name pkar-mgm-vnet --address-prefixes 10.30.0.0/16 --subnet-name pkar-mgm-bastion-subnet --subnet-prefix 10.30.1.0/24
+az network vnet create --resource-group $RG --name pkar-mgm-vnet --address-prefixes 10.30.0.0/16 --subnet-name pkar-mgm-appsgw-subnet --subnet-prefix 10.30.2.0/24
 ```
 
 ##### -  Create a service principal and assign permissions
@@ -59,11 +61,10 @@ The following example output shows the application ID and password for your serv
 To assign the correct delegations in the remaining steps, use the az network vnet show and az network vnet subnet show commands to get the required resource IDs. These resource IDs are stored as variables and referenced in the remaining steps:
 
 ```
-VNET_ID=$(az network vnet show --resource-group pkar-aks-rg --name pkar-aks-vnet --query id -o tsv)
+VNET_ID=$(az network vnet show --resource-group $RG --name pkar-aks-vnet --query id -o tsv)
 APPS_ID=$(az ad sp list --display-name pkar-app-sp --query [].appId --output tsv)
-PROD_SUBNET_ID=$(az network vnet subnet show --resource-group pkar-aks-rg --vnet-name pkar-aks-vnet --name pkar-aks-prod-subnet --query id -o tsv)
-UAT_SUBNET_ID=$(az network vnet subnet show --resource-group pkar-aks-rg --vnet-name pkar-aks-vnet --name pkar-aks-uat-subnet --query id -o tsv)
-SIT_SUBNET_ID=$(az network vnet subnet show --resource-group pkar-aks-rg --vnet-name pkar-aks-vnet --name pkar-aks-sit-subnet --query id -o tsv)
+PROD_SUBNET_ID=$(az network vnet subnet show --resource-group $RG --vnet-name pkar-aks-vnet --name pkar-aks-prod-subnet --query id -o tsv)
+TEST_SUBNET_ID=$(az network vnet subnet show --resource-group $RG --vnet-name pkar-aks-vnet --name pkar-aks-test-subnet --query id -o tsv)
 ```
 
 Now assign the service principal for your AKS cluster Contributor permissions on the virtual network using the az role assignment create command. Provide your own <appId> as shown in the output from the previous command to create the service principal:
@@ -77,26 +78,37 @@ az role assignment create --assignee $APPS_ID --scope $VNET_ID --role Contributo
 
 ##### -  Get the latest available Kubernetes version in your preferred region into a bash variable. 
 
-```version=$(az aks get-versions -l eastus --query 'orchestrators[-1].orchestratorVersion' -o tsv)```
+```
+CLUSTER=prod-aks-win  
+WINPASS="Adminkar@2675"
+WINUSER=adminprod
+NODEVM=Standard_DS2_v2
+K8SV=$(az aks get-versions -l eastus --query 'orchestrators[-1].orchestratorVersion' -o tsv)
+```
 
 ##### -  Create an AKS PROD cluster in the PROD Subnet
 
 ```
 az aks create \
-    --resource-group pkar-aks-rg \
-    --name pkar-aks-cluster \
+    --resource-group $RG \
+    --name $CLUSTER \
     --node-count 1 \
-    --network-plugin kubenet \
+    --network-plugin azure \
     --service-cidr 10.0.0.0/16 \
     --dns-service-ip 10.0.0.10 \
-    --pod-cidr 10.244.0.0/16 \
     --docker-bridge-address 172.17.0.1/16 \
     --vnet-subnet-id $PROD_SUBNET_ID \
     --generate-ssh-keys \
-    --node-vm-size Standard_DS1_v2 \
-    --nodepool-name paksappsnp \
-    --kubernetes-version $version \
+    --windows-admin-password $WINPASS \
+    --windows-admin-username $WINUSER \
+    --vm-set-type VirtualMachineScaleSets \
+    --network-plugin azure \
+    --node-osdisk-size 80 \
+    --node-vm-size $NODEVM \
+    --nodepool-name coreaksp \
+    --kubernetes-version $K8SV \
     --service-principal $APPS_ID \
+    --tags 'env=prod' 'app=Aks Windows' \
     --client-secret <password>
 ```
 
@@ -104,12 +116,13 @@ az aks create \
 
 ```
 az aks nodepool add \
-    --resource-group pkar-aks-rg \
-    --cluster-name pkar-aks-cluster \
-    --name paksinfranp \
+    --resource-group $RG \
+    --cluster-name $CLUSTER \
+    --os-type Windows \
+    --name wiaksp \
+    --node-vm-size $NODEVM \
     --node-count 1 \
-    --node-vm-size Standard_DS1_v2 \
-    --kubernetes-version $version
+    --kubernetes-version $K8SV
 ```
 
 ### Scale node pool
@@ -130,7 +143,8 @@ az aks nodepool scale \
 ##### -  Connect to AKS Cluster (Get Credencials & setup environment)
 
 ``` 
-az aks get-credentials --resource-group pkar-aks-rg --name pkar-aks-cluster
+az aks get-credentials --resource-group $RG --name $CLUSTER
+export KUBECONFIG=/root/.kube/config
 kubectl config get-clusters
 kubectl config current-context
 kubectl get nodes
@@ -146,8 +160,6 @@ rt=$(az network route-table list -g $AKS_MC_RG -o json | jq -r '.[].id')
 az network vnet subnet update -g pkar-aks-rg --route-table $rt --ids $PROD_SUBNET_ID
 ```
 ##### Ref: https://github.com/Azure/aks-engine/blob/master/docs/tutorials/custom-vnet.md
-
-
 
 ##### -  Setup Bastion VM in Managment VNET
 
