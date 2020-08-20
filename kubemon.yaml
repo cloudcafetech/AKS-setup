@@ -1861,6 +1861,10 @@ data:
       relabel_configs:
       - action: labelmap
         regex: __meta_kubernetes_node_label_(.+)
+    - job_name: 'windows-exporter'
+      metrics_path: /metrics
+      static_configs:
+      - targets: ['win-node-exporter:9100']
 ---
 kind: Service
 apiVersion: v1
@@ -1878,7 +1882,6 @@ spec:
       port: 9090
       protocol: TCP
       targetPort: 9090
-      nodePort: 30090
   sessionAffinity: ClientIP
   selector:
     k8s-app: prometheus
@@ -1965,4 +1968,50 @@ spec:
             name: kubemon-prometheus-config
         - name: kubemon-prometheus-data
           emptyDir: {}
-          
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    k8s-app: win-node-exporter
+  name: win-node-exporter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      k8s-app: win-node-exporter
+  template:
+    metadata:
+      labels:
+        k8s-app: win-node-exporter
+    spec:
+      containers:
+      - args:
+        - --collectors.enabled=os,iis,container,memory,logical_disk,net,cs,memory,terminal_services,tcp
+        - --telemetry.addr=0.0.0.0:9100
+        name: win-node-exporter
+        image: chzbrgr71/windows_exporter:v1.1
+        ports:
+        - containerPort: 9100
+          hostPort: 9100
+          name: http
+      nodeSelector:
+        "beta.kubernetes.io/os": windows
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: win-node-exporter
+  name: win-node-exporter
+  namespace: monitoring
+spec:
+  ports:
+  - name: http
+    port: 9100
+    protocol: TCP
+    targetPort: http
+  selector:
+    k8s-app: win-node-exporter
+
+
