@@ -3,8 +3,6 @@ kind: DaemonSet
 metadata:
   labels:
     k8s-app: win-node-exporter
-    app.kubernetes.io/name: kubemon
-    app.kubernetes.io/component: win-node-exporter
   name: win-node-exporter
   namespace: monitoring
 spec:
@@ -16,17 +14,16 @@ spec:
       labels:
         k8s-app: win-node-exporter
     spec:
-      serviceAccountName: node-exporter
       containers:
       - args:
-        - --collectors.enabled=os,iis,container
-        - --telemetry.addr=127.0.0.1:9100
+        - --collectors.enabled=os,iis,container,memory,logical_disk,net,cs,memory,terminal_services,tcp
+        - --telemetry.addr=0.0.0.0:9100
         name: win-node-exporter
         image: chzbrgr71/windows_exporter:v1.1
         ports:
         - containerPort: 9100
           hostPort: 9100
-          name: https
+          name: http
       nodeSelector:
         "beta.kubernetes.io/os": windows
 ---
@@ -38,12 +35,10 @@ metadata:
   name: win-node-exporter
   namespace: monitoring
 spec:
-  type: ClusterIP
   ports:
-  - name: https
+  - name: http
     port: 9100
     protocol: TCP
-    targetPort: https
+    targetPort: http
   selector:
     k8s-app: win-node-exporter
-    
