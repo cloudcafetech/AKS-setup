@@ -1987,10 +1987,11 @@ spec:
     spec:
       containers:
       - args:
-        - --collectors.enabled=os,iis,container,memory,logical_disk,net,cs,memory,terminal_services,tcp
+        - --collectors.enabled=os,iis,cpu,system,container,logical_disk,net,cs,memory,terminal_services,tcp
         - --telemetry.addr=0.0.0.0:9100
         name: win-node-exporter
-        image: chzbrgr71/windows_exporter:v1.1
+        #image: chzbrgr71/windows_exporter:v1.1
+        image: "prasenforu/windows_exporter:v0.1"
         ports:
         - containerPort: 9100
           hostPort: 9100
