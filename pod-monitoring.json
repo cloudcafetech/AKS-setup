@@ -6,7 +6,7 @@
   "gnetId": 315,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1598065372433,
+  "iteration": 1598076357564,
   "links": [],
   "panels": [
     {
@@ -780,7 +780,7 @@
       "valueName": "current"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
@@ -789,431 +789,435 @@
         "y": 5
       },
       "id": 88,
-      "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "prometheus",
-          "decimals": 3,
-          "editable": true,
-          "error": false,
-          "fieldConfig": {
-            "defaults": {
-              "custom": {}
-            },
-            "overrides": []
-          },
-          "fill": 0,
-          "fillGradient": 0,
-          "grid": {},
-          "gridPos": {
-            "h": 6,
-            "w": 12,
-            "x": 0,
-            "y": 6
-          },
-          "height": "",
-          "hiddenSeries": false,
-          "id": 39,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "connected",
-          "paceLength": 10,
-          "percentage": false,
-          "pluginVersion": "7.1.4",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "sort_desc (sum (container_memory_usage_bytes{image!=\"\",pod=\"$PoD\",namespace=~\"^$Project$\",instance=~\"^$Node$\"}) by (pod,instance))",
-              "format": "time_series",
-              "hide": false,
-              "interval": "10s",
-              "intervalFactor": 1,
-              "legendFormat": "{{ pod }}  ( {{ instance }} )",
-              "metric": "container_cpu",
-              "refId": "A",
-              "step": 10
-            },
-            {
-              "expr": "sort_desc (sum (windows_container_memory_usage_commit_bytes{container_id=~\"$Con_Id\"}) by (container_id))",
-              "format": "time_series",
-              "hide": false,
-              "interval": "10s",
-              "intervalFactor": 1,
-              "legendFormat": "{{ pod }}  ( {{ instance }} )",
-              "metric": "container_cpu",
-              "refId": "B",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeRegions": [],
-          "timeShift": null,
-          "title": "Pods Memory usage",
-          "tooltip": {
-            "msResolution": true,
-            "shared": true,
-            "sort": 2,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": "MB",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "prometheus",
-          "decimals": 2,
-          "editable": true,
-          "error": false,
-          "fieldConfig": {
-            "defaults": {
-              "custom": {}
-            },
-            "overrides": []
-          },
-          "fill": 0,
-          "fillGradient": 0,
-          "grid": {},
-          "gridPos": {
-            "h": 6,
-            "w": 12,
-            "x": 12,
-            "y": 6
-          },
-          "height": "",
-          "hiddenSeries": false,
-          "id": 35,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "connected",
-          "paceLength": 10,
-          "percentage": false,
-          "pluginVersion": "7.1.4",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",pod=~\"$PoD\",namespace=~\"^$Project$\",instance=~\"^$Node$\"}[2m])) by (pod,instance)",
-              "format": "time_series",
-              "hide": false,
-              "interval": "10s",
-              "intervalFactor": 1,
-              "legendFormat": "{{ pod }}  ({{ instance }}  )",
-              "metric": "container_cpu",
-              "refId": "A",
-              "step": 10
-            },
-            {
-              "expr": "sum (rate (windows_container_cpu_usage_seconds_total{container_id=~\"$Con_Id\"}[2m])) by (container_id)",
-              "format": "time_series",
-              "hide": false,
-              "interval": "10s",
-              "intervalFactor": 1,
-              "legendFormat": "{{ \"$PoD\" }}  ({{ instance }}  )",
-              "metric": "container_cpu",
-              "refId": "B",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeRegions": [],
-          "timeShift": null,
-          "title": "Pods CPU usage",
-          "tooltip": {
-            "msResolution": true,
-            "shared": true,
-            "sort": 2,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "decimals": null,
-              "format": "percentunit",
-              "label": "",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "datasource": "Loki",
-          "fieldConfig": {
-            "defaults": {
-              "custom": {}
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 12
-          },
-          "id": 104,
-          "links": [],
-          "options": {
-            "showLabels": false,
-            "showTime": true,
-            "sortOrder": "Descending",
-            "wrapLogMessage": true
-          },
-          "targets": [
-            {
-              "expr": "{instance=\"$PoD\"} ",
-              "refId": "A"
-            },
-            {
-              "expr": "{instance=\"$PoD\"} |~ \"(error)\"",
-              "hide": true,
-              "refId": "B"
-            }
-          ],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Pods logs",
-          "type": "logs"
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "prometheus",
-          "decimals": 2,
-          "editable": true,
-          "error": false,
-          "fieldConfig": {
-            "defaults": {
-              "custom": {}
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "grid": {},
-          "gridPos": {
-            "h": 4,
-            "w": 24,
-            "x": 0,
-            "y": 20
-          },
-          "hiddenSeries": false,
-          "id": 41,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": false,
-            "min": false,
-            "rightSide": true,
-            "show": true,
-            "sideWidth": 200,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "connected",
-          "paceLength": 10,
-          "percentage": false,
-          "pluginVersion": "7.1.4",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "sum (rate (container_network_receive_bytes_total{pod=~\"$PoD\",namespace=~\"^$Project$\",node=~\"^$Node$\"}[2m])) by (pod)",
-              "format": "time_series",
-              "hide": false,
-              "interval": "10s",
-              "intervalFactor": 1,
-              "legendFormat": "IN",
-              "metric": "network",
-              "refId": "A",
-              "step": 10
-            },
-            {
-              "expr": "- sum (rate (container_network_transmit_bytes_total{image!=\"\",pod=~\"$PoD\",namespace=~\"^$Project$\",node=~\"^$Node$\"}[2m])) by (pod)",
-              "format": "time_series",
-              "hide": false,
-              "interval": "10s",
-              "intervalFactor": 1,
-              "legendFormat": "OUT",
-              "metric": "network",
-              "refId": "B",
-              "step": 10
-            },
-            {
-              "expr": "sum (rate (windows_container_network_receive_bytes_total{container_id=~\"$Con_Id\"}[2m])) by (container_id)",
-              "format": "time_series",
-              "hide": false,
-              "interval": "10s",
-              "intervalFactor": 1,
-              "legendFormat": "IN",
-              "metric": "network",
-              "refId": "C",
-              "step": 10
-            },
-            {
-              "expr": "- sum (rate (windows_container_network_transmit_bytes_total{container_id=~\"$Con_Id\"}[2m])) by (container_id)",
-              "format": "time_series",
-              "hide": false,
-              "interval": "10s",
-              "intervalFactor": 1,
-              "legendFormat": "OUT",
-              "metric": "network",
-              "refId": "D",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeRegions": [],
-          "timeShift": null,
-          "title": "Pods network I/O",
-          "tooltip": {
-            "msResolution": false,
-            "shared": true,
-            "sort": 2,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        }
-      ],
+      "panels": [],
       "title": "PoD",
       "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "decimals": 3,
+      "editable": true,
+      "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "height": "",
+      "hiddenSeries": false,
+      "id": 39,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "connected",
+      "paceLength": 10,
+      "percentage": false,
+      "pluginVersion": "7.1.4",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sort_desc (sum (container_memory_usage_bytes{image!=\"\",pod=\"$PoD\",namespace=~\"^$Project$\",instance=~\"^$Node$\"}) by (pod,instance))",
+          "format": "time_series",
+          "hide": false,
+          "interval": "10s",
+          "intervalFactor": 1,
+          "legendFormat": "{{ pod }}  ( {{ instance }} )",
+          "metric": "container_cpu",
+          "refId": "A",
+          "step": 10
+        },
+        {
+          "expr": "sort_desc (sum (windows_container_memory_usage_commit_bytes{container_id=~\"$Con_Id\"}) by (container_id))",
+          "format": "time_series",
+          "hide": false,
+          "interval": "10s",
+          "intervalFactor": 1,
+          "legendFormat": "{{ pod }}  ( {{ instance }} )",
+          "metric": "container_cpu",
+          "refId": "B",
+          "step": 10
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Pods Memory usage",
+      "tooltip": {
+        "msResolution": true,
+        "shared": true,
+        "sort": 2,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "bytes",
+          "label": "MB",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "decimals": 2,
+      "editable": true,
+      "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "height": "",
+      "hiddenSeries": false,
+      "id": 35,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "connected",
+      "paceLength": 10,
+      "percentage": false,
+      "pluginVersion": "7.1.4",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",pod=~\"$PoD\",namespace=~\"^$Project$\",instance=~\"^$Node$\"}[2m])) by (pod,instance)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "10s",
+          "intervalFactor": 1,
+          "legendFormat": "{{ pod }}  ({{ instance }}  )",
+          "metric": "container_cpu",
+          "refId": "A",
+          "step": 10
+        },
+        {
+          "expr": "sum (rate (windows_container_cpu_usage_seconds_total{container_id=~\"$Con_Id\"}[2m])) by (container_id)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "10s",
+          "intervalFactor": 1,
+          "legendFormat": "{{ \"$PoD\" }}  ({{ instance }}  )",
+          "metric": "container_cpu",
+          "refId": "B",
+          "step": 10
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Pods CPU usage",
+      "tooltip": {
+        "msResolution": true,
+        "shared": true,
+        "sort": 2,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "percentunit",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 104,
+      "links": [],
+      "options": {
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "expr": "{pod=\"$PoD\"} ",
+          "legendFormat": "",
+          "refId": "A"
+        },
+        {
+          "expr": "{instance=\"$PoD\"} |~ \"(error)\"",
+          "hide": true,
+          "refId": "B"
+        },
+        {
+          "expr": "{instance=\"$PoD\"} ",
+          "refId": "C"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Pods logs",
+      "type": "logs"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "decimals": 2,
+      "editable": true,
+      "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "hiddenSeries": false,
+      "id": 41,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": 200,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "connected",
+      "paceLength": 10,
+      "percentage": false,
+      "pluginVersion": "7.1.4",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum (rate (container_network_receive_bytes_total{pod=~\"$PoD\",namespace=~\"^$Project$\",node=~\"^$Node$\"}[2m])) by (pod)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "10s",
+          "intervalFactor": 1,
+          "legendFormat": "IN",
+          "metric": "network",
+          "refId": "A",
+          "step": 10
+        },
+        {
+          "expr": "- sum (rate (container_network_transmit_bytes_total{image!=\"\",pod=~\"$PoD\",namespace=~\"^$Project$\",node=~\"^$Node$\"}[2m])) by (pod)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "10s",
+          "intervalFactor": 1,
+          "legendFormat": "OUT",
+          "metric": "network",
+          "refId": "B",
+          "step": 10
+        },
+        {
+          "expr": "sum (rate (windows_container_network_receive_bytes_total{container_id=~\"$Con_Id\"}[2m])) by (container_id)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "10s",
+          "intervalFactor": 1,
+          "legendFormat": "IN",
+          "metric": "network",
+          "refId": "C",
+          "step": 10
+        },
+        {
+          "expr": "- sum (rate (windows_container_network_transmit_bytes_total{container_id=~\"$Con_Id\"}[2m])) by (container_id)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "10s",
+          "intervalFactor": 1,
+          "legendFormat": "OUT",
+          "metric": "network",
+          "refId": "D",
+          "step": 10
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Pods network I/O",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 2,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "Bps",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "collapsed": true,
@@ -1222,7 +1226,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 24
       },
       "id": 98,
       "panels": [
@@ -1824,7 +1828,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 25
       },
       "id": 106,
       "panels": [
@@ -1950,7 +1954,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 26
       },
       "id": 84,
       "panels": [],
@@ -1988,7 +1992,7 @@
         "h": 3,
         "w": 3,
         "x": 0,
-        "y": 9
+        "y": 27
       },
       "height": "180px",
       "id": 77,
@@ -2089,7 +2093,7 @@
         "h": 3,
         "w": 3,
         "x": 3,
-        "y": 9
+        "y": 27
       },
       "height": "180px",
       "id": 78,
@@ -2190,7 +2194,7 @@
         "h": 3,
         "w": 3,
         "x": 6,
-        "y": 9
+        "y": 27
       },
       "height": "180px",
       "id": 110,
@@ -2274,7 +2278,7 @@
         "h": 3,
         "w": 5,
         "x": 9,
-        "y": 9
+        "y": 27
       },
       "id": 89,
       "links": [],
@@ -2325,7 +2329,7 @@
         "h": 3,
         "w": 4,
         "x": 14,
-        "y": 9
+        "y": 27
       },
       "height": "1px",
       "id": 93,
@@ -2419,7 +2423,7 @@
         "h": 3,
         "w": 3,
         "x": 18,
-        "y": 9
+        "y": 27
       },
       "height": "1px",
       "id": 74,
@@ -2513,7 +2517,7 @@
         "h": 3,
         "w": 3,
         "x": 21,
-        "y": 9
+        "y": 27
       },
       "height": "1px",
       "id": 76,
@@ -2598,7 +2602,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 30
       },
       "height": "",
       "hiddenSeries": false,
@@ -2718,7 +2722,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 30
       },
       "height": "",
       "hiddenSeries": false,
@@ -2868,7 +2872,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 17
+        "y": 35
       },
       "height": "",
       "hiddenSeries": false,
@@ -3010,7 +3014,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 17
+        "y": 35
       },
       "height": "",
       "hiddenSeries": false,
@@ -3173,7 +3177,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 40
       },
       "height": "",
       "hiddenSeries": false,
