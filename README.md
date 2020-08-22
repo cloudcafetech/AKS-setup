@@ -122,6 +122,7 @@ az aks nodepool add \
     --name wiaksp \
     --node-vm-size $NODEVM \
     --node-count 1 \
+	  --enable-node-public-ip \    
     --kubernetes-version $K8SV
 ```
 
@@ -148,6 +149,24 @@ export KUBECONFIG=/root/.kube/config
 kubectl config get-clusters
 kubectl config current-context
 kubectl get nodes
+```
+
+##### -  Install windows exporter
+
+Do RDP on Windows host and run following command
+
+```
+wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/monitoring-setup.sh; chmod +x monitoring-setup.sh
+./monitoring-setup.sh
+```
+
+##### -  Install monitoring
+
+Download and run following script
+
+```
+curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-exporter-setup.bat
+windows-exporter-setup.bat
 ```
 
 ##### -  POD to POD communication accross ALL nodes
