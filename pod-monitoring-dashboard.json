@@ -17,7 +17,7 @@
   "gnetId": 315,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1598065508993,
+  "iteration": 1598076357564,
   "links": [],
   "panels": [
     {
@@ -1069,13 +1069,18 @@
       },
       "targets": [
         {
-          "expr": "{instance=\"$PoD\"} ",
+          "expr": "{pod=\"$PoD\"} ",
+          "legendFormat": "",
           "refId": "A"
         },
         {
           "expr": "{instance=\"$PoD\"} |~ \"(error)\"",
           "hide": true,
           "refId": "B"
+        },
+        {
+          "expr": "{instance=\"$PoD\"} ",
+          "refId": "C"
         }
       ],
       "timeFrom": null,
@@ -2136,7 +2141,7 @@
         "lineColor": "rgb(31, 120, 193)",
         "show": false
       },
-      "tableColumn": "{instance=\"10.20.1.35:9100\", job=\"windows-exporter\"}",
+      "tableColumn": "{controller_revision_hash=\"5b587f956d\", instance=\"aks-coreaksp-17828832-vmss000000\", job=\"node-exporter\", k8s_app=\"node-exporter\", namespace=\"monitoring\", pod=\"kubemon-node-exporter-z6wqf\", pod_template_generation=\"1\"}",
       "targets": [
         {
           "expr": "((windows_cs_physical_memory_bytes{instance=\"$PoD_Host:9100\"}) - (windows_os_physical_memory_free_bytes{instance=\"$PoD_Host:9100\"})) / (windows_cs_physical_memory_bytes{instance=\"$PoD_Host:9100\"}) * 100",
@@ -2237,7 +2242,7 @@
         "lineColor": "rgb(31, 120, 193)",
         "show": false
       },
-      "tableColumn": "{instance=\"10.20.1.35:9100\", job=\"windows-exporter\", volume=\"C:\"}",
+      "tableColumn": "{controller_revision_hash=\"5b587f956d\", device=\"/dev/sda1\", fstype=\"ext4\", instance=\"aks-coreaksp-17828832-vmss000000\", job=\"node-exporter\", k8s_app=\"node-exporter\", mountpoint=\"/\", namespace=\"monitoring\", pod=\"kubemon-node-exporter-z6wqf\", pod_template_generation=\"1\"}",
       "targets": [
         {
           "expr": "((node_filesystem_size_bytes {job=\"node-exporter\",device=\"/dev/sda1\",instance=~\"$PoD_Node\",mountpoint=\"/\"}) - (node_filesystem_free_bytes {job=\"node-exporter\",device=\"/dev/sda1\",instance=~\"$PoD_Node\",mountpoint=\"/\"})) / (node_filesystem_size_bytes {job=\"node-exporter\",device=\"/dev/sda1\",instance=~\"$PoD_Node\",mountpoint=\"/\"}\r\n) * 100",
@@ -3330,9 +3335,9 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
-          "text": "default",
-          "value": "default"
+          "selected": false,
+          "text": "monitoring",
+          "value": "monitoring"
         },
         "datasource": "prometheus",
         "definition": "label_values(namespace)",
@@ -3357,8 +3362,8 @@
         "allValue": ".*",
         "current": {
           "selected": false,
-          "text": "sample-559f8649cf-mmf6w",
-          "value": "sample-559f8649cf-mmf6w"
+          "text": "kubemon-node-exporter-z6wqf",
+          "value": "kubemon-node-exporter-z6wqf"
         },
         "datasource": "prometheus",
         "definition": "label_values(kube_pod_info{namespace=\"$Project\"},pod)",
@@ -3383,8 +3388,8 @@
         "allValue": ".*",
         "current": {
           "selected": false,
-          "text": "akswiaksp000000",
-          "value": "akswiaksp000000"
+          "text": "aks-coreaksp-17828832-vmss000000",
+          "value": "aks-coreaksp-17828832-vmss000000"
         },
         "datasource": "prometheus",
         "definition": "label_values(kube_pod_info{namespace=\"$Project\",pod=\"$PoD\"},node)",
@@ -3409,8 +3414,8 @@
         "allValue": ".*",
         "current": {
           "selected": false,
-          "text": "docker://5b1f916c9c03b8d727da066cf9e672d72e12a4393701536a6c62b4f2f9f1aca8",
-          "value": "docker://5b1f916c9c03b8d727da066cf9e672d72e12a4393701536a6c62b4f2f9f1aca8"
+          "text": "docker://447b1840238d5bf22255420b0f1b5f0025e542062c8b291861b5e3d740c04d85",
+          "value": "docker://447b1840238d5bf22255420b0f1b5f0025e542062c8b291861b5e3d740c04d85"
         },
         "datasource": "prometheus",
         "definition": "label_values(kube_pod_container_info{namespace=\"$Project\",pod=\"$PoD\"},container_id)",
@@ -3435,8 +3440,8 @@
         "allValue": ".*",
         "current": {
           "selected": false,
-          "text": "10.20.1.35",
-          "value": "10.20.1.35"
+          "text": "10.20.1.4",
+          "value": "10.20.1.4"
         },
         "datasource": "prometheus",
         "definition": "label_values(kube_pod_info{namespace=\"$Project\",pod=\"$PoD\"},host_ip)",
