@@ -10,6 +10,11 @@ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki-win-d
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/kubemon.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/pod-monitoring.json
 
+# Edit kubemon.yaml with Windows host
+
+winnode=$(kubectl get nodes -o wide | grep Windows | awk '{print $6}')
+sed -i "s/win-node-exporter/$winnode/g" kubemon.yaml
+
 # Deploy for monitoring and logging
 
 kubectl create ns monitoring
@@ -23,8 +28,7 @@ kubectl create -f loki-win-ds.yaml -n logging
 
 echo ""
 echo "Waiting for Grafana POD ready to upload dashboard & loki datasource .."
-while [[ $(kubectl get pods kubemon-grafana-0 -n monitoring -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True"
-]]; do printf '.'; sleep 2; done
+while [[ $(kubectl get pods kubemon-grafana-0 -n monitoring -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do printf '.'; sleep 2; done
 
 HIP=$(kubectl get svc kubemon-grafana -n monitoring | grep kubemon-grafana | awk '{print $4}')
 curl -vvv http://admin:admin2675@$HIP/api/dashboards/db -X POST -d @pod-monitoring.json -H 'Content-Type: application/json'
