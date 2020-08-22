@@ -24,7 +24,7 @@ spec:
       - name:
       containers:
         - name: promtail-win
-          image: "prasenforu/promtailwin:v0.1"
+          image: "prasenforu/promtailwin:v0.2"
           imagePullPolicy: IfNotPresent
           args:
             - "-config.file=/etc/promtail/promtail.yaml"
