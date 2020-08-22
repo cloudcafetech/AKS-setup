@@ -1,0 +1,353 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: loki
+  name: loki
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: fluent-bit-loki
+  name: loki-fluent-bit-loki
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: loki
+  name: loki
+rules:
+- apiGroups:
+  - extensions
+  resourceNames:
+  - loki
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: loki
+  name: loki
+  namespace: logging
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: loki
+subjects:
+- kind: ServiceAccount
+  name: loki
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: fluent-bit-loki
+  name: loki-fluent-bit-loki-clusterrole
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: fluent-bit-loki
+  name: loki-fluent-bit-loki-clusterrolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: loki-fluent-bit-loki-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: loki-fluent-bit-loki
+  namespace: logging
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  labels:
+    app: loki
+  name: loki
+spec:
+  allowPrivilegeEscalation: false
+  fsGroup:
+    ranges:
+    - max: 65535
+      min: 1
+    rule: MustRunAs
+  readOnlyRootFilesystem: true
+  requiredDropCapabilities:
+  - ALL
+  runAsUser:
+    rule: MustRunAsNonRoot
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    ranges:
+    - max: 65535
+      min: 1
+    rule: MustRunAs
+  volumes:
+  - configMap
+  - emptyDir
+  - persistentVolumeClaim
+  - secret
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: fluent-bit-loki
+  name: loki-fluent-bit-loki
+data:
+  fluent-bit.conf: |-
+    [SERVICE]
+        Flush          1
+        Daemon         Off
+        Log_Level      warn
+        Parsers_File   parsers.conf
+    [INPUT]
+        Name           tail
+        Tag            kube.*
+        Path           /var/log/containers/*.log
+        Exclude_Path   /var/log/containers/*_monitoring_*.log,/var/log/containers/*_logging_*.log,/var/log/containers/*_kube-system_*.
+log,/var/log/containers/*_kube-node-lease_*.log,/var/log/containers/*_kube-public_*.log
+        Parser         docker
+        DB             /run/fluent-bit/flb_kube.db
+        Mem_Buf_Limit  5MB
+    [FILTER]
+        Name           kubernetes
+        Match          kube.*
+        Kube_URL       https://kubernetes.default.svc:443
+        Merge_Log      On
+    [Output]
+        Name           loki
+        Match          *
+        Url            http://loki:3100/api/prom/push
+        Labels         {job="fluent-bit"}
+        RemoveKeys     kubernetes,stream
+        LabelMapPath   /fluent-bit/etc/labelmap.json
+        LineFormat     json
+        LogLevel       warn
+  labelmap.json: |-
+    {
+      "kubernetes": {
+        "container_name": "container",
+        "host": "node",
+        "labels": {
+          "app": "app",
+          "release": "release"
+        },
+        "namespace_name": "namespace",
+        "pod_name": "instance"
+      },
+      "stream": "stream"
+    }
+  parsers.conf: |-
+    [PARSER]
+        Name        docker
+        Format      json
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: loki
+  name: loki
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: loki
+  serviceName: loki-headless
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - args:
+        - -config.file=/etc/loki/loki.yaml
+        image: grafana/loki:v1.3.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: loki
+        ports:
+        - containerPort: 3100
+          name: http-metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        securityContext:
+          procMount: Default
+          readOnlyRootFilesystem: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/loki
+          name: config
+        - mountPath: /data
+          name: storage
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      serviceAccount: loki
+      serviceAccountName: loki
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: config
+        secret:
+          defaultMode: 420
+          secretName: loki
+      - emptyDir: {}
+        name: storage
+  updateStrategy:
+    type: RollingUpdate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: loki
+  name: loki
+spec:
+  ports:
+  - name: http-metrics
+    port: 3100
+    protocol: TCP
+    targetPort: http-metrics
+  selector:
+    app: loki
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: loki
+  name: loki-headless
+spec:
+  clusterIP: None
+  ports:
+  - name: http-metrics
+    port: 3100
+    protocol: TCP
+    targetPort: http-metrics
+  selector:
+    app: loki
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: fluent-bit-loki
+  name: loki-fluent-bit-loki
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit-loki
+  template:
+    metadata:
+      labels:
+        app: fluent-bit-loki
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - image: grafana/fluent-bit-plugin-loki:0.1
+        imagePullPolicy: IfNotPresent
+        name: fluent-bit-loki
+        ports:
+        - containerPort: 2020
+          name: http-metrics
+          protocol: TCP
+        resources:
+          limits:
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /fluent-bit/etc
+          name: config
+        - mountPath: /run/fluent-bit
+          name: run
+        - mountPath: /var/log
+          name: varlog
+        - mountPath: /var/lib/docker/containers
+          name: varlibdockercontainers
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccount: loki-fluent-bit-loki
+      serviceAccountName: loki-fluent-bit-loki
+      terminationGracePeriodSeconds: 10
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: loki-fluent-bit-loki
+        name: config
+      - hostPath:
+          path: /run/fluent-bit
+          type: ""
+        name: run
+      - hostPath:
+          path: /var/log
+          type: ""
+        name: varlog
+      - hostPath:
+          path: /var/lib/docker/containers
+          type: ""
+        name: varlibdockercontainers
+  updateStrategy:
+    type: RollingUpdate
