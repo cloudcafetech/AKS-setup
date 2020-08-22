@@ -1,5 +1,5 @@
 #!/bin/bash
-# Monitoring & logging setup script in AKS with Windows container 
+# Monitoring & logging setup script in AKS with Windows container
 
 # Download for monitoring and logging
 
@@ -21,7 +21,14 @@ kubectl create -f loki-win-ds.yaml -n logging
 
 ## Upload Grafana dashboard & loki datasource
 
-HIP=52.158.47.53
+echo ""
+echo "Waiting for Grafana POD ready to upload dashboard & loki datasource .."
+while [[ $(kubectl get pods kubemon-grafana-0 -n monitoring -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True"
+]]; do printf '.'; sleep 2; done
+
+HIP=$(kubectl get svc kubemon-grafana -n monitoring | grep kubemon-grafana | awk '{print $4}')
 curl -vvv http://admin:admin2675@$HIP/api/dashboards/db -X POST -d @pod-monitoring.json -H 'Content-Type: application/json'
 curl -vvv http://admin:admin2675@$HIP/api/dashboards/db -X POST -d @cluster-cost.json -H 'Content-Type: application/json'
-curl -vvv http://admin:admin2675@$HIP/api/datasources -X POST -d @loki-ds.json -H 'Content-Type: application/json' 
+curl -vvv http://admin:admin2675@$HIP/api/datasources -X POST -d @loki-ds.json -H 'Content-Type: application/json'
+
+kubectl get svc -n monitoring
