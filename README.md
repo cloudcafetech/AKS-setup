@@ -156,8 +156,8 @@ kubectl get nodes
 Do RDP on Windows host and run following command
 
 ```
-wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/monitoring-setup.sh; chmod +x monitoring-setup.sh
-./monitoring-setup.sh
+curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-exporter-setup.bat
+windows-exporter-setup.bat
 ```
 
 ##### -  Install monitoring
@@ -165,8 +165,8 @@ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/monitoring
 Download and run following script
 
 ```
-curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-exporter-setup.bat
-windows-exporter-setup.bat
+wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/monitoring-setup.sh; chmod +x monitoring-setup.sh
+./monitoring-setup.sh
 ```
 
 ##### -  POD to POD communication accross ALL nodes
