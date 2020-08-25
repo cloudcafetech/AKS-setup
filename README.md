@@ -130,20 +130,17 @@ az aks nodepool add \
 AKS node pool subnets are protected with NSGs (Network Security Groups) by default. To get access to the virtual machine, enabled access in the NSG.
 
 ```
+SOURCE_IP=<SOURCE-PUBLIC-OR-PRIVATE-IP>
 CLUSTER_RG=$(az aks show -g $RG -n $CLUSTER --query nodeResourceGroup -o tsv)
 NSG_NAME=$(az network nsg list -g $CLUSTER_RG --query [].name -o tsv)
-az network nsg rule create --name winnodeexportAccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 102 --destination-port-range 9100 --protocol Tcp --description "Windows export access to Windows nodes"
-az network nsg rule create --name tempRDPAccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 100 --destination-port-range 3389 --protocol Tcp --description "Temporary RDP access to Windows nodes"
-az network nsg rule create --name tempsshccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 103 --destination-port-range 22 --protocol Tcp --description "Temporary ssh access to Windows nodes"
+az network nsg rule create --name tempSSHAccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 100 --source-address-prefixes $SOURCE_IP --destination-port-range 22 --protocol Tcp --description "Temporary ssh access to Windows nodes"	
 ```
 
 ##### -  Remove access to the Windows VM (node)
 Remove temporary NSG rules
 
 ```
-az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name tempRDPAccess
-az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name tempsshccess
-az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name winnodeexportAccess
+az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name tempSSHAccess
 ```
 
 ### Scale node pool
@@ -173,14 +170,14 @@ kubectl get nodes
 
 ##### -  Install windows exporter
 
-Do RDP/SSH on Windows host and run following command
+Running SSH command on Windows host remotely
 
 ```
 ssh $WINUSER@<Windows-VM-IP>
 ssh adminprod@<Windows-VM-IP>
 
-curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-exporter-setup.bat
-windows-exporter-setup.bat
+ssh $WINUSER@<Windows-VM-IP> 'curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-exporter-setup.bat' 
+ssh $WINUSER@<Windows-VM-IP> 'windows-exporter-setup.bat'
 ```
 
 ##### -  Install monitoring
