@@ -1,0 +1,164 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-cm
+data:
+  wcfurl: http://wcf/Service.svc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    component: web
+  name: web
+spec:
+  ports:
+  - port: 80
+  selector:
+    component: web
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    component: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: web
+  template:
+    metadata:
+      labels:
+        component: web
+    spec:
+      containers:
+      - name: web
+        #image: smarthotel360/registrationweb:latest
+        image: prasenforu/registrationweb:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+          - name: WcfServiceUri
+            valueFrom:
+              configMapKeyRef:
+                name: web-cm
+                key: wcfurl
+      nodeSelector:
+        "beta.kubernetes.io/os": windows
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wcf-cm
+data:
+  dbconnection: Server=sql,1433;Database=Registration;User Id=sa;Password=Azure2019!
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    component: wcf
+  name: wcf
+spec:
+  ports:
+  - port: 80
+  selector:
+    component: wcf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wcf
+  labels:
+    component: wcf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: wcf
+  template:
+    metadata:
+      labels:
+        component: wcf
+    spec:
+      containers:
+      - name: wcf
+        #image: smarthotel360/registrationwcf:latest
+        image: prasenforu/registrationwcf:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+          - name: DefaultConnection
+            valueFrom:
+              configMapKeyRef:
+                name: wcf-cm
+                key: dbconnection
+      nodeSelector:
+        "beta.kubernetes.io/os": windows
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sql-cm
+data:
+  ACCEPT_EULA: "Y"
+  sa_password: "Azure2019!"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    component: sql
+  name: sql
+spec:
+  ports:
+  - port: 1433
+  selector:
+    component: sql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sql
+  labels:
+    component: sql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: sql
+  template:
+    metadata:
+      labels:
+        component: sql
+    spec:
+      containers:
+      - name: sql
+        #image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+        image: prasenforu/mssqlsrv:2017-latest-ubuntu
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 1433
+        env:
+          - name: ACCEPT_EULA
+            valueFrom:
+              configMapKeyRef:
+                name: sql-cm
+                key: ACCEPT_EULA
+          - name: MSSQL_SA_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: sql-cm
+                key: sa_password
+          - name: SA_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: sql-cm
+                key: sa_password
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
