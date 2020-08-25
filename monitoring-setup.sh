@@ -9,6 +9,7 @@ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki-ds.js
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki-win-ds.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/kubemon.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/pod-monitoring.json
+wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/kube-monitoring-overview.json
 
 # Edit kubemon.yaml with Windows host
 
@@ -32,7 +33,7 @@ while [[ $(kubectl get pods kubemon-grafana-0 -n monitoring -o 'jsonpath={..stat
 
 HIP=$(kubectl get svc kubemon-grafana -n monitoring | grep kubemon-grafana | awk '{print $4}')
 curl -vvv http://admin:admin2675@$HIP/api/dashboards/db -X POST -d @pod-monitoring.json -H 'Content-Type: application/json'
-curl -vvv http://admin:admin2675@$HIP/api/dashboards/db -X POST -d @cluster-cost.json -H 'Content-Type: application/json'
+curl -vvv http://admin:admin2675@$HIP/api/dashboards/db -X POST -d @kube-monitoring-overview.json -H 'Content-Type: application/json'
 curl -vvv http://admin:admin2675@$HIP/api/datasources -X POST -d @loki-ds.json -H 'Content-Type: application/json'
 
 kubectl get svc -n monitoring
