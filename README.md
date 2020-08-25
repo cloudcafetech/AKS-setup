@@ -137,6 +137,15 @@ az network nsg rule create --name tempRDPAccess --resource-group $CLUSTER_RG --n
 az network nsg rule create --name tempsshccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 103 --destination-port-range 22 --protocol Tcp --description "Temporary ssh access to Windows nodes"
 ```
 
+##### -  Remove access to the Windows VM (node)
+Remove temporary NSG rules
+
+```
+az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name tempRDPAccess
+az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name tempsshccess
+az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name winnodeexportAccess
+```
+
 ### Scale node pool
 
 ```
