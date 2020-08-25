@@ -189,6 +189,15 @@ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/monitoring
 ./monitoring-setup.sh
 ```
 
+##### -  Install Sample Application
+
+Download and run following yaml
+
+```
+wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/hotel-app-win-aks.yaml
+kubectl create -f hotel-app-win-aks.yaml
+```
+
 ##### -  POD to POD communication accross ALL nodes
 As we are building cluster in custom VNET, need to update routing table otherwise pod will communicates with other Pods on same node not other node. Basically When using pre-existing VNET and subnet (not dedicated to AKS) the routing table with UDRs for the AKS nodes is not attached to the subnet the nodes are deployed to by default, which means that the pods have no way to reach each other across nodes.
 
