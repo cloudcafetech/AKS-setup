@@ -122,8 +122,19 @@ az aks nodepool add \
     --name wiaksp \
     --node-vm-size $NODEVM \
     --node-count 1 \
-	  --enable-node-public-ip \    
+    --enable-node-public-ip \    
     --kubernetes-version $K8SV
+```
+
+##### -  Allow access to the Windows VM (node)
+AKS node pool subnets are protected with NSGs (Network Security Groups) by default. To get access to the virtual machine, enabled access in the NSG.
+
+```
+CLUSTER_RG=$(az aks show -g $RG -n $CLUSTER --query nodeResourceGroup -o tsv)
+NSG_NAME=$(az network nsg list -g $CLUSTER_RG --query [].name -o tsv)
+az network nsg rule create --name winnodeexportAccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 102 --destination-port-range 9100 --protocol Tcp --description "Windows export access to Windows nodes"
+az network nsg rule create --name tempRDPAccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 100 --destination-port-range 3389 --protocol Tcp --description "Temporary RDP access to Windows nodes"
+az network nsg rule create --name tempsshccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 103 --destination-port-range 22 --protocol Tcp --description "Temporary ssh access to Windows nodes"
 ```
 
 ### Scale node pool
@@ -153,9 +164,12 @@ kubectl get nodes
 
 ##### -  Install windows exporter
 
-Do RDP on Windows host and run following command
+Do RDP/SSH on Windows host and run following command
 
 ```
+ssh $WINUSER@<Windows VM IP>
+ssh adminprod@<Windows VM IP>
+
 curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-exporter-setup.bat
 windows-exporter-setup.bat
 ```
