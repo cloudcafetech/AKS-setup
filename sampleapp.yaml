@@ -1,48 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sample
-  labels:
-    app: sample
+  name: windows-server-iis
 spec:
+  selector:
+    matchLabels:
+      app: windows-server-iis
   replicas: 1
   template:
     metadata:
-      name: sample
       labels:
-        app: sample
+        app: windows-server-iis
     spec:
-      tolerations:
-        - key: kubernetes.io/os
-          operator: Equal
-          value: windows
-          effect: NoSchedule
-      nodeSelector:
-        "beta.kubernetes.io/os": windows
       containers:
-      - name: sample
-        image: mcr.microsoft.com/dotnet/framework/samples:aspnetapp
-        resources:
-          limits:
-            cpu: 1
-            memory: 800M
-          requests:
-            cpu: .1
-            memory: 300M
+      - name: windows-server-iis
+        image: mcr.microsoft.com/windows/servercore:1809
         ports:
-          - containerPort: 80
-  selector:
-    matchLabels:
-      app: sample
+        - name: http
+          containerPort: 80
+        imagePullPolicy: IfNotPresent
+        command:
+        - powershell.exe
+        - -command
+        - "Add-WindowsFeature Web-Server; Invoke-WebRequest -UseBasicParsing -Uri 'https://dotnetbinaries.blob.core.windows.net/servicemonitor/2.0.1.6/ServiceMonitor.exe' -OutFile 'C:\\ServiceMonitor.exe'; echo '<html><body><br/><br/><marquee><H1>Hello EKS!!!<H1><marquee></body><html>' > C:\\inetpub\\wwwroot\\default.html; C:\\ServiceMonitor.exe 'w3svc'; "
+      nodeSelector:
+        beta.kubernetes.io/os: windows
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: sample
+  name: windows-server-iis-service
+  namespace: default
 spec:
-  type: LoadBalancer
   ports:
-  - protocol: TCP
-    port: 80
+  - port: 80
+    protocol: TCP
+    targetPort: 80
   selector:
-    app: sample
+    app: windows-server-iis
+  sessionAffinity: None
+  type: LoadBalancer
