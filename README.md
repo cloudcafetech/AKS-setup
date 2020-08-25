@@ -167,8 +167,8 @@ kubectl get nodes
 Do RDP/SSH on Windows host and run following command
 
 ```
-ssh $WINUSER@<Windows VM IP>
-ssh adminprod@<Windows VM IP>
+ssh $WINUSER@<Windows-VM-IP>
+ssh adminprod@<Windows-VM-IP>
 
 curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-exporter-setup.bat
 windows-exporter-setup.bat
