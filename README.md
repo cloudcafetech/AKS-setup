@@ -56,7 +56,14 @@ AKS uses service principal to access other azure services like ACR & others. Def
 
 The following example output shows the application ID and password for your service principal. These values are used in additional steps to assign a role to the service principal and then create the AKS cluster: Copy output of following command
 
-```az ad sp create-for-rbac -n "pkar-app-sp" --skip-assignment```
+```
+CLUSTER=prod-aks-win
+mkdir $CLUSTER
+cd $CLUSTER
+ssh-keygen -f ssh-key-$CLUSTER -N ''
+SP_PASSWD=$(az ad sp create-for-rbac --name pkar-app-sp --skip-assignment --query password --output tsv)
+echo "$SP_PASSWD" > pkar-app-sp-password
+```
 
 To assign the correct delegations in the remaining steps, use the az network vnet show and az network vnet subnet show commands to get the required resource IDs. These resource IDs are stored as variables and referenced in the remaining steps:
 
@@ -79,7 +86,6 @@ az role assignment create --assignee $APPS_ID --scope $VNET_ID --role Contributo
 ##### -  Get the latest available Kubernetes version in your preferred region into a bash variable. 
 
 ```
-CLUSTER=prod-aks-win  
 WINPASS="Adminkar@2675"
 WINUSER=adminprod
 NODEVM=Standard_DS2_v2
@@ -98,7 +104,7 @@ az aks create \
     --dns-service-ip 10.0.0.10 \
     --docker-bridge-address 172.17.0.1/16 \
     --vnet-subnet-id $PROD_SUBNET_ID \
-    --generate-ssh-keys \
+    --ssh-key-value "ssh-key-$CLUSTER.pub" \
     --windows-admin-password $WINPASS \
     --windows-admin-username $WINUSER \
     --vm-set-type VirtualMachineScaleSets \
@@ -109,7 +115,7 @@ az aks create \
     --kubernetes-version $K8SV \
     --service-principal $APPS_ID \
     --tags 'env=prod' 'app=Aks Windows' \
-    --client-secret <password>
+    --client-secret "$SP_PASSWD"
 ```
 
 ##### -  Add another nodepoll for infra in AKS PROD cluster.
@@ -176,8 +182,8 @@ Running SSH command on Windows host remotely
 ssh $WINUSER@<Windows-VM-IP>
 ssh adminprod@<Windows-VM-IP>
 
-ssh $WINUSER@<Windows-VM-IP> 'curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-exporter-setup.bat' 
-ssh $WINUSER@<Windows-VM-IP> 'windows-exporter-setup.bat'
+ssh $WINUSER@<Windows-VM-IP> -i ssh-key-prod-aks-win 'curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-exporter-setup.bat' 
+ssh $WINUSER@<Windows-VM-IP> -i ssh-key-prod-aks-win 'windows-exporter-setup.bat'
 ```
 
 ##### -  Install monitoring
