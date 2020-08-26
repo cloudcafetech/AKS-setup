@@ -147,8 +147,8 @@ az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --n
 
 ```
 az aks nodepool scale \
-    --resource-group pkar-aks-rg \
-    --cluster-name pkar-aks-cluster \
+    --resource-group $RG \
+    --cluster-name $CLUSTER \
     --name <NODEPOOL-NAME> \
     --node-count 1 \
     --no-wait
@@ -320,7 +320,7 @@ az acr repository show-tags --name pkaraksacr --repository prod/employee -o tabl
 Azure Application Gateway is an advance type of load-balancer. Where an Azure Load-balancer routes traffic on the transport layer (OSI Layer 4 | TCP + UDP) the Application Gateway is a way more advanced load-balancer. It can route based on URL as well on path’s. On top of that it can do much more, like SSL offloading, autoscaling, redirection, multiple site hosting and the most import of all, it can include a web application firewall (WAF).
 
 <p align="center">
-  <img src="https://github.com/prasenforu/Kube-platform/blob/master/AKS/ingress-agw.PNG">
+  <img src="https://github.com/cloudcafetech/AKS-setup/blob/master/ingress-agw1.PNG">
 </p>
 
 ##### - Create the application gateway
