@@ -142,24 +142,6 @@ NSG_NAME=$(az network nsg list -g $CLUSTER_RG --query [].name -o tsv)
 az network nsg rule create --name tempSSHAccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 100 --source-address-prefixes $SOURCE_IP --destination-port-range 22 --protocol Tcp --description "Temporary ssh access to Windows nodes"	
 ```
 
-##### -  Remove access to the Windows VM (node)
-Remove temporary NSG rules
-
-```
-az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name tempSSHAccess
-```
-
-### Scale node pool
-
-```
-az aks nodepool scale \
-    --resource-group $RG \
-    --cluster-name $CLUSTER \
-    --name <NODEPOOL-NAME> \
-    --node-count 1 \
-    --no-wait
-```
-
 ##### -  Install kubectl 
 
 ```sudo az aks install-cli```
@@ -203,6 +185,16 @@ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/hotel-app-
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/sampleapp.yaml
 kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 ```
+
+### Some usefull command for AKS
+
+##### -  Remove temporary access (NSG rules) to the Windows VM (node)
+
+```az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name tempSSHAccess```
+
+##### - Scale node pool
+
+```az aks nodepool scale --resource-group $RG --cluster-name $CLUSTER --name <NODEPOOL-NAME> --node-count 1 --no-wait```
 
 ##### - To get list vmss (VirtualMachineScaleSets)
 
