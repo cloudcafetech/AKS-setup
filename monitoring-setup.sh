@@ -6,7 +6,7 @@
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/kubelog.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki-ds.json
-wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki-win-ds.yaml
+#wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki-win-ds.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/kubemon.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/pod-monitoring.json
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/kube-monitoring-overview.json
@@ -23,7 +23,7 @@ kubectl create -f kubemon.yaml -n monitoring
 kubectl create ns logging
 kubectl create secret generic loki -n logging --from-file=loki.yaml
 kubectl create -f kubelog.yaml -n logging
-kubectl create -f loki-win-ds.yaml -n logging
+#kubectl create -f loki-win-ds.yaml -n logging
 
 ## Upload Grafana dashboard & loki datasource
 
