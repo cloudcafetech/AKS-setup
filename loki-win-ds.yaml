@@ -15,9 +15,6 @@ spec:
       labels:
         app: promtail-win
         release: loki
-      annotations:
-        prometheus.io/port: http-metrics
-        prometheus.io/scrape: "true"
     spec:
       serviceAccountName: loki-fluent-bit-loki
       imagePullSecrets:
@@ -29,6 +26,7 @@ spec:
           args:
             - "-config.file=/etc/promtail/promtail.yaml"
             - "-client.url=http://loki:3100/api/prom/push"
+            #- "-client.url=http://loki:3100/loki/api/v1/push"            
             - "-log.level=debug"
           volumeMounts:
             - name: config
