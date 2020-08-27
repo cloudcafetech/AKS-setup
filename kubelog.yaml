@@ -105,6 +105,8 @@ spec:
   - emptyDir
   - persistentVolumeClaim
   - secret
+  - projected
+  - downwardAPI
 ---
 apiVersion: v1
 kind: ConfigMap
