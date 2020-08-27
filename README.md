@@ -204,6 +204,29 @@ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/sampleapp.
 kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 ```
 
+##### - To get list vmss (VirtualMachineScaleSets)
+
+```
+RG=pkar-aks-rg
+CLUSTER=prod-aks-win  
+CLUSTER_RG=$(az aks show -g $RG -n $CLUSTER --query nodeResourceGroup -o tsv)
+az vmss list --resource-group $CLUSTER_RG -o table | awk '{print $1}' | grep aks
+```
+
+##### To get Stop vmss (VirtualMachineScaleSets)
+
+```
+az vmss deallocate --resource-group $CLUSTER_RG --name aks-coreaksp-17828832-vmss --instance-ids 0	
+az vmss deallocate --resource-group $CLUSTER_RG --name akswiaksp --instance-ids 0
+```
+
+##### To get Start vmss (VirtualMachineScaleSets)
+
+```
+az vmss start --resource-group $CLUSTER_RG --name aks-coreaksp-17828832-vmss --instance-ids 0
+az vmss start --resource-group $CLUSTER_RG --name akswiaksp --instance-ids 0
+```
+
 ##### -  POD to POD communication accross ALL nodes
 As we are building cluster in custom VNET, need to update routing table otherwise pod will communicates with other Pods on same node not other node. Basically When using pre-existing VNET and subnet (not dedicated to AKS) the routing table with UDRs for the AKS nodes is not attached to the subnet the nodes are deployed to by default, which means that the pods have no way to reach each other across nodes.
 
