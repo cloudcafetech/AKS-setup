@@ -196,27 +196,28 @@ kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 
 ```az aks nodepool scale --resource-group $RG --cluster-name $CLUSTER --name <NODEPOOL-NAME> --node-count 1 --no-wait```
 
-##### - To get list vmss (VirtualMachineScaleSets)
+##### To Stop AKS Cluster
 
 ```
 RG=pkar-aks-rg
 CLUSTER=prod-aks-win  
 CLUSTER_RG=$(az aks show -g $RG -n $CLUSTER --query nodeResourceGroup -o tsv)
-az vmss list --resource-group $CLUSTER_RG -o table | awk '{print $1}' | grep aks
+for i in $(az vmss list --resource-group $CLUSTER_RG -o table | awk '{print $1}' | grep aks); do
+  echo "Stoping & deallocating AKS Cluster .."
+  az vmss deallocate --resource-group $CLUSTER_RG --name $i --instance-ids 0
+done
 ```
 
-##### To get Stop vmss (VirtualMachineScaleSets)
+##### To Start AKS Cluster
 
 ```
-az vmss deallocate --resource-group $CLUSTER_RG --name aks-coreaksp-17828832-vmss --instance-ids 0	
-az vmss deallocate --resource-group $CLUSTER_RG --name akswiaksp --instance-ids 0
-```
-
-##### To get Start vmss (VirtualMachineScaleSets)
-
-```
-az vmss start --resource-group $CLUSTER_RG --name aks-coreaksp-17828832-vmss --instance-ids 0
-az vmss start --resource-group $CLUSTER_RG --name akswiaksp --instance-ids 0
+RG=pkar-aks-rg
+CLUSTER=prod-aks-win  
+CLUSTER_RG=$(az aks show -g $RG -n $CLUSTER --query nodeResourceGroup -o tsv)
+for i in $(az vmss list --resource-group $CLUSTER_RG -o table | awk '{print $1}' | grep aks); do
+  echo "Starting AKS Cluster .."
+  az vmss start --resource-group $CLUSTER_RG --name $i --instance-ids 0
+done
 ```
 
 ##### -  POD to POD communication accross ALL nodes
