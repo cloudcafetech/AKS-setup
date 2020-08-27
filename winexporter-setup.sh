@@ -20,3 +20,12 @@ done
 
 echo "Deleting SSH POD"
 kubectl delete pod aks-ssh
+
+# Cluster linux host login
+#kubectl exec -it aks-ssh -- ssh -o 'StrictHostKeyChecking no' -i ssh-key-$CLUSTER azureuser@<LINUX HOST IP>
+
+# Cluster Windows host login
+#kubectl exec -it aks-ssh -- ssh -o 'StrictHostKeyChecking no' -i ssh-key-$CLUSTER $WINUSER@<Windows HOST IP>
+
+# Exit container cleanup command
+#docker rm `docker ps -a | grep -v CONTAINER | grep Exited | awk '{print $1}'`
