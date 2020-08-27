@@ -186,6 +186,13 @@ kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 
 ### Some usefull command for AKS
 
+##### - To Start/Stop AKS Cluster
+
+```
+wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/aks-start-stop.sh; chmod +x aks-start-stop.sh
+./aks-start-stop.sh { start | stop }
+```
+
 ##### -  Remove temporary access (NSG rules) to the Windows VM (node)
 
 ```az network nsg rule delete --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --name tempSSHAccess```
@@ -193,30 +200,6 @@ kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 ##### - Scale node pool
 
 ```az aks nodepool scale --resource-group $RG --cluster-name $CLUSTER --name <NODEPOOL-NAME> --node-count 1 --no-wait```
-
-##### - To Stop AKS Cluster
-
-```
-RG=pkar-aks-rg
-CLUSTER=prod-aks-win  
-CLUSTER_RG=$(az aks show -g $RG -n $CLUSTER --query nodeResourceGroup -o tsv)
-for i in $(az vmss list --resource-group $CLUSTER_RG -o table | awk '{print $1}' | grep aks); do
-  echo "Stoping & deallocating AKS Cluster .."
-  az vmss deallocate --resource-group $CLUSTER_RG --name $i --instance-ids 0
-done
-```
-
-##### - To Start AKS Cluster
-
-```
-RG=pkar-aks-rg
-CLUSTER=prod-aks-win  
-CLUSTER_RG=$(az aks show -g $RG -n $CLUSTER --query nodeResourceGroup -o tsv)
-for i in $(az vmss list --resource-group $CLUSTER_RG -o table | awk '{print $1}' | grep aks); do
-  echo "Starting AKS Cluster .."
-  az vmss start --resource-group $CLUSTER_RG --name $i --instance-ids 0
-done
-```
 
 ##### -  POD to POD communication accross ALL nodes
 As we are building cluster in custom VNET, need to update routing table otherwise pod will communicates with other Pods on same node not other node. Basically When using pre-existing VNET and subnet (not dedicated to AKS) the routing table with UDRs for the AKS nodes is not attached to the subnet the nodes are deployed to by default, which means that the pods have no way to reach each other across nodes.
