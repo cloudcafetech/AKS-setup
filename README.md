@@ -200,7 +200,8 @@ Download and run following yaml
 
 ```
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/hotel-app-win-aks.yaml
-kubectl create -f hotel-app-win-aks.yaml
+wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/sampleapp.yaml
+kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 ```
 
 ##### -  POD to POD communication accross ALL nodes
