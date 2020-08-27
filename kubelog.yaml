@@ -297,7 +297,8 @@ spec:
       nodeSelector:
         "beta.kubernetes.io/os": linux
       containers:
-      - image: grafana/fluent-bit-plugin-loki:0.1
+      #- image: grafana/fluent-bit-plugin-loki:0.1
+      - image: grafana/fluent-bit-plugin-loki:1.6.0-amd64
         imagePullPolicy: IfNotPresent
         name: fluent-bit-loki
         ports:
