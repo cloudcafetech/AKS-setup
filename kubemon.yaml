@@ -1850,11 +1850,12 @@ data:
         - win-node-exporter
       relabel_configs:
         - source_labels: [__address__]
-          target_label: __param_target
-        - source_labels: [__param_target]
+          regex:  '(.*)'
+          target_label: __address__
+          replacement: '${1}:9100'
+        - source_labels: [__address__]
           target_label: instance
-        - target_label: __address__
-          replacement: windows-exporter:9100  
+
 ---
 kind: Service
 apiVersion: v1
