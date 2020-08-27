@@ -196,7 +196,7 @@ kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 
 ```az aks nodepool scale --resource-group $RG --cluster-name $CLUSTER --name <NODEPOOL-NAME> --node-count 1 --no-wait```
 
-##### To Stop AKS Cluster
+##### - To Stop AKS Cluster
 
 ```
 RG=pkar-aks-rg
@@ -208,7 +208,7 @@ for i in $(az vmss list --resource-group $CLUSTER_RG -o table | awk '{print $1}'
 done
 ```
 
-##### To Start AKS Cluster
+##### - To Start AKS Cluster
 
 ```
 RG=pkar-aks-rg
