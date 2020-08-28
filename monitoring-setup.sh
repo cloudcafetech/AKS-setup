@@ -6,24 +6,36 @@
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/kubelog.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki-ds.json
-#wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki-win-ds.yaml
+wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/linux-prometheus-configmap.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/kubemon.yaml
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/pod-monitoring.json
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/kube-monitoring-overview.json
 
-# Edit kubemon.yaml with Windows host
-
-winnode=$(kubectl get nodes -o wide | grep Windows | awk '{print $6}')
-sed -i "s/win-node-exporter/$winnode/g" kubemon.yaml
-
-# Deploy for monitoring and logging
+# Setup common manifest for monitoring and logging
 
 kubectl create ns monitoring
-kubectl create -f kubemon.yaml -n monitoring
 kubectl create ns logging
 kubectl create secret generic loki -n logging --from-file=loki.yaml
 kubectl create -f kubelog.yaml -n logging
-#kubectl create -f loki-win-ds.yaml -n logging
+
+# Validation for Windows Node
+
+winnode=$(kubectl get nodes -o wide | grep Windows | awk '{print $6}')
+
+# Deploy for monitoring and logging
+
+if [ "$winnode" == "" ]; then
+ kubectl create -f linux-prometheus-configmap.yaml -n monitoring
+ kubectl create -f kubemon.yaml -n monitoring
+else
+ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/loki-win-ds.yaml
+ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/win-prometheus-configmap.yaml
+ # Edit win-prometheus-configmap.yaml with Windows host
+ sed -i "s/win-node-exporter/$winnode/g" win-prometheus-configmap.yaml
+ kubectl create -f win-prometheus-configmap.yaml -n monitoring
+ kubectl create -f kubemon.yaml -n monitoring
+ kubectl create -f loki-win-ds.yaml -n logging
+fi
 
 ## Upload Grafana dashboard & loki datasource
 
