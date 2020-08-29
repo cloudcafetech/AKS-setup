@@ -198,6 +198,7 @@ Login in windows hosts and run following command
 ```
 curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-vim-setup.ps1
 powershell -noexit "& ""C:\Users\adminprod\windows-vim-setup.ps1"""
+set PATH=%PATH%;"c:\tools\vim\vim82"
 ```
 
 ##### -  Create NSG rule (allow access) to login AKS nodes
