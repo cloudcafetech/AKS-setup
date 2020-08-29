@@ -132,16 +132,6 @@ az aks nodepool add \
     --kubernetes-version $K8SV
 ```
 
-##### -  Allow access to the Windows VM (node)
-AKS node pool subnets are protected with NSGs (Network Security Groups) by default. To get access to the virtual machine, enabled access in the NSG.
-
-```
-SOURCE_IP=<SOURCE-PUBLIC-OR-PRIVATE-IP>
-CLUSTER_RG=$(az aks show -g $RG -n $CLUSTER --query nodeResourceGroup -o tsv)
-NSG_NAME=$(az network nsg list -g $CLUSTER_RG --query [].name -o tsv)
-az network nsg rule create --name tempSSHAccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 100 --source-address-prefixes $SOURCE_IP --destination-port-range 22 --protocol Tcp --description "Temporary ssh access to Windows nodes"	
-```
-
 ##### -  Install kubectl 
 
 ```sudo az aks install-cli```
@@ -191,6 +181,15 @@ kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 ```
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/aks-start-stop.sh; chmod +x aks-start-stop.sh
 ./aks-start-stop.sh { start | stop }
+```
+##### -  Create NSG rule (allow access) to login AKS nodes
+AKS node pool subnets are protected with NSGs (Network Security Groups) by default. To get access to the virtual machine, enabled access in the NSG.
+
+```
+SOURCE_IP=<SOURCE-PUBLIC-OR-PRIVATE-IP>
+CLUSTER_RG=$(az aks show -g $RG -n $CLUSTER --query nodeResourceGroup -o tsv)
+NSG_NAME=$(az network nsg list -g $CLUSTER_RG --query [].name -o tsv)
+az network nsg rule create --name tempSSHAccess --resource-group $CLUSTER_RG --nsg-name $NSG_NAME --priority 100 --source-address-prefixes $SOURCE_IP --destination-port-range 22 --protocol Tcp --description "Temporary ssh access to Windows nodes"	
 ```
 
 ##### -  Remove temporary access (NSG rules) to the Windows VM (node)
