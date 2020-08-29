@@ -192,6 +192,14 @@ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/aks-login-
 ./aks-login-node.sh
 ```
 
+##### - Install VI in Windows host
+Login in windows hosts and run following command
+
+```
+curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-vim-setup.ps1
+powershell -noexit "& ""C:\Users\adminprod\windows-vim-setup.ps1"""
+```
+
 ##### -  Create NSG rule (allow access) to login AKS nodes
 AKS node pool subnets are protected with NSGs (Network Security Groups) by default. To get access to the virtual machine, enabled access in the NSG.
 
