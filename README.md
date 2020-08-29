@@ -177,11 +177,21 @@ kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 ### Some usefull command for AKS
 
 ##### - To Start/Stop AKS Cluster
+Start and Stop AKS Cluster
 
 ```
 wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/aks-start-stop.sh; chmod +x aks-start-stop.sh
 ./aks-start-stop.sh { start | stop }
 ```
+
+##### - To login AKS Cluster node
+Login AKS Cluster node
+
+```
+wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/aks-login-node.sh; chmod +x aks-login-node.sh
+./aks-login-node.sh
+```
+
 ##### -  Create NSG rule (allow access) to login AKS nodes
 AKS node pool subnets are protected with NSGs (Network Security Groups) by default. To get access to the virtual machine, enabled access in the NSG.
 
