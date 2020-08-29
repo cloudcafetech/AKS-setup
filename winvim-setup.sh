@@ -16,7 +16,7 @@ kubectl cp $SSHKEY $(kubectl get pod aks-ssh | awk '{print $1}' | grep -v NAME):
 
 for winhost in $(kubectl get nodes -o wide | grep Windows | awk '{print $6}'); do
   echo "Deploying Host Exporter on Windows Nodes"
-  kubectl exec -it aks-ssh -- ssh -o 'StrictHostKeyChecking no' -i $SSHKEY $WINUSER@$winhost "curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-vi-setup.bat && windows-vi-setup.bat"
+  kubectl exec -it aks-ssh -- ssh -o 'StrictHostKeyChecking no' -i $SSHKEY $WINUSER@$winhost "curl -LO https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/windows-vim-setup.bat && windows-vim-setup.bat"
 done
 
 echo "Deleting SSH POD"
