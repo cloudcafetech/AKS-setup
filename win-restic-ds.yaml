@@ -57,7 +57,7 @@ data:
     $pod = $env:POD_NAME
     $namespace = $env:NAMESPACE
     $podbkppath = $env:POD_BACKUP_DIR_PATH
-    $hostbkppath = "C:\aks"
+    $hostbkppath = "C:\host_pods"
     $tag = $server
 
     # Backup configuration variables
@@ -87,7 +87,7 @@ metadata:
 data:
   AWS_ACCESS_KEY_ID: "admin"
   AWS_SECRET_ACCESS_KEY: "admin2675"
-  RESTIC_REPOSITORY: "s3:http://<MinIo-Server-IP>:9000/aks-cluster/restic"
+  RESTIC_REPOSITORY: "s3:http://35.239.239.46:9000/aks-cluster/restic"
   RESTIC_PASSWORD: "admin2675"
 ---
 apiVersion: apps/v1
@@ -148,8 +148,9 @@ spec:
               name: win-restic-cm
               key: RESTIC_PASSWORD
         volumeMounts:
-        - name: host-backup-path
-          mountPath: C:\aks
+        - name: host-pods
+          mountPath: C:\host_pods
+          mountPropagation: HostToContainer
           readOnly: true
         - name: scripts
           mountPath: c:\scripts\
@@ -158,9 +159,10 @@ spec:
       nodeSelector:
         beta.kubernetes.io/os: windows
       volumes:
-      - name: host-backup-path
+      - name: host-pods
         hostPath:
-          path: C:\aks
+          path: C:\var\lib\kubelet\pods
+          type: ""
       - name: scripts
         configMap:
           name: restic-ps-scripts
