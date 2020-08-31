@@ -174,6 +174,13 @@ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/sampleapp.
 kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 ```
 
+##### -  Backup
+
+```
+kubectl create -f win-restic-ds.yaml
+kubectl exec -it pod/win-restic-z5ng8 -n velero -- powershell resticbackup.ps1
+```
+
 ### Some usefull command for AKS
 
 ##### - To Start/Stop AKS Cluster
