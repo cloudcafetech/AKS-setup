@@ -87,7 +87,7 @@ metadata:
 data:
   AWS_ACCESS_KEY_ID: "admin"
   AWS_SECRET_ACCESS_KEY: "admin2675"
-  RESTIC_REPOSITORY: "s3:http://35.239.239.46:9000/aks-cluster/restic"
+  RESTIC_REPOSITORY: "s3:http://<MinIo-Server-IP>:9000/aks-cluster/restic"
   RESTIC_PASSWORD: "admin2675"
 ---
 apiVersion: apps/v1
