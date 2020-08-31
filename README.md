@@ -174,9 +174,10 @@ wget https://raw.githubusercontent.com/cloudcafetech/AKS-setup/master/sampleapp.
 kubectl create -f hotel-app-win-aks.yaml -f sampleapp.yaml
 ```
 
-##### -  Backup
+##### -  Setup Backup & restore
 
 ```
+kubectl create ns velero
 kubectl create -f win-restic-ds.yaml
 kubectl exec -it pod/win-restic-z5ng8 -n velero -- powershell resticbackup.ps1
 ```
