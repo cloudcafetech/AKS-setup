@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: win-pod
+  name: win-pod
+spec:
+  containers:
+  - image: mcr.microsoft.com/powershell:nanoserver-1809
+    imagePullPolicy: Always
+    name: win-pod
+    # Just spin & wait forever
+    command:
+    - pwsh.exe
+    args:
+    - /Command
+    - while ($true) {start-sleep -s 3600}
+  nodeSelector:
+    beta.kubernetes.io/os: windows
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: win-pod
+  name: win-pod
+spec:
+  containers:
+  - image: mcr.microsoft.com/windows/nanoserver:1809
+    imagePullPolicy: Always
+    name: win-pod
+    # Just spin & wait forever
+    command: [ "cmd" ]
+    args: [ "/c ping -t localhost > NUL" ]
+  nodeSelector:
+    beta.kubernetes.io/os: windows
