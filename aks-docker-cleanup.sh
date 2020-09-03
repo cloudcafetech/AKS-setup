@@ -1,5 +1,5 @@
 #!/bin/bash
-# Windows Nodes Exporter setup script on AKS Windows Host
+# Kubernetes host exit container cleanup script
 
 CLUSTER=prod-aks-win
 WINUSER=adminprod
