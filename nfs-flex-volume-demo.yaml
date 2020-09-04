@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs
+  labels:
+    app: nfs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs
+  template:
+    metadata:
+      labels:
+        app: nfs
+    spec:
+      nodeSelector:
+        beta.kubernetes.io/os: windows
+      tolerations:
+      - key: "os"
+        operator: "Equal"
+        value: "windows"
+        effect: "NoSchedule"
+      containers:
+      - name: nfs
+        image: mcr.microsoft.com/powershell:7.1.0-preview.5-nanoserver-1809
+        imagePullPolicy: IfNotPresent
+        command: ["pwsh.exe"]
+        args: ["/Command", "ping", "-t", "127.0.0.1", ">>", "/d/test.txt"]
+        volumeMounts:
+        - name: nfs-volume
+          mountPath: /d
+      volumes:
+      - name: nfs-volume
+        flexVolume:
+          driver: "nfs-win/nfs.cmd"
+          options:
+            # source can be in any of the following formats
+            # \\servername\share\path  (\'s will need to be escaped)
+            # nfs://servername/share/path
+            # //servername/share/path
+            # source: "nfs://xxx-xxx.cn-shenzhen.nas.aliyuncs.com/!"
+            source: "nfs://10.20.1.4/var/nfs/general"
