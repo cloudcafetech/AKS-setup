@@ -227,6 +227,15 @@ az network nsg rule create --name tempSSHAccess --resource-group $CLUSTER_RG --n
 
 ```az aks nodepool scale --resource-group $RG --cluster-name $CLUSTER --name <NODEPOOL-NAME> --node-count 1 --no-wait```
 
+##### - Windows host storge details
+Login windows host and execute following command in powershell
+
+```
+Get-Volume
+Get-Disk
+gdr
+```
+
 ##### -  POD to POD communication accross ALL nodes
 As we are building cluster in custom VNET, need to update routing table otherwise pod will communicates with other Pods on same node not other node. Basically When using pre-existing VNET and subnet (not dedicated to AKS) the routing table with UDRs for the AKS nodes is not attached to the subnet the nodes are deployed to by default, which means that the pods have no way to reach each other across nodes.
 
