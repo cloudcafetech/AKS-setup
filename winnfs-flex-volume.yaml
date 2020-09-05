@@ -396,26 +396,18 @@ data:
 
     RunFlexVolume
   Readme.md: |2-
-
-        ,ad8888ba,       88 I8,        8        ,8I 88             888b      88    ad88
-       d8"'    `"8b    ,d88 `8b       d8b       d8' ""             8888b     88   d8"
-      d8'        `8b 888888  "8,     ,8"8,     ,8"                 88 `8b    88   88
-      88          88     88   Y8     8P Y8     8P   88 8b,dPPYba,  88  `8b   88 MM88MMM ,adPPYba,
-      88          88     88   `8b   d8' `8b   d8'   88 88P'   `"8a 88   `8b  88   88    I8[    ""
-      Y8,    "88,,8P     88    `8a a8'   `8a a8'    88 88       88 88    `8b 88   88     `"Y8ba,
-       Y8a.    Y88P      88     `8a8'     `8a8'     88 88       88 88     `8888   88    aa    ]8I
-        `"Y8888Y"Y8a     88      `8'       `8'      88 88       88 88      `888   88    `"YbbdP"'
-
       Driver has been installed.
       Make sure /flexvolume-nfs from this container mounts to Kubernetes driver directory.
         k8s 1.18.x
         C:\usr\libexec\kubernetes\kubelet-plugins\volume\exec\
+      For Volume plugin directory path
+        C:\k\volumeplugins
       This path may be different in your system due to kubelet parameter --volume-plugin-dir.
       This driver depends on the following packages to be installed on the host:
         ## windows cmd
         dism /online /enable-feature /featurename:ServicesForNFS-ServerAndClient
         dism /online /enable-feature /featurename:ClientForNFS-Infrastructure
-      This container can now be stopped and removed.
+      Now you can delete this Daemonset.
 ---
 apiVersion: apps/v1
 kind: DaemonSet
