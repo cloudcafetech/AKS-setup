@@ -1,0 +1,78 @@
+apiVersion: v1 
+kind: PersistentVolume 
+metadata:   
+  name: pv0001
+spec:   
+  capacity:     
+    storage: 1Gi    
+  accessModes:     
+    - ReadWriteOnce
+  storageClassName: win-storageclass
+  flexVolume:     
+    driver: "nfs-win/nfs.cmd" 
+    options:
+      # source should be following formats
+      #source: nfs://nfs-server-name/share/path
+      source: "nfs://10.20.1.4/var/nfs/general"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-flex-vol-pv0001
+spec: 
+  storageClassName: win-storageclass
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi	  
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-flex-vol
+  labels:
+    app: nfs-flex-vol
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-flex-vol
+  template:
+    metadata:
+      labels:
+        app: nfs-flex-vol
+    spec:
+      nodeSelector:
+        beta.kubernetes.io/os: windows
+      tolerations:
+      - key: "os"
+        operator: "Equal"
+        value: "windows"
+        effect: "NoSchedule"
+      containers:
+      - name: nfs-flex-vol
+        image: mcr.microsoft.com/powershell:7.1.0-preview.5-nanoserver-1809
+        imagePullPolicy: IfNotPresent
+        command:
+        - pwsh.exe
+        args:
+        - /Command
+        - Write-Output "$env:POD_NAME Started on $env:NODENAME at $(Get-Date)" >> /d/test.txt;
+        - ping -t 127.0.0.1 >> /d/test.txt
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: NODENAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        volumeMounts:
+        - name: nfs-volume
+          mountPath: /d
+      volumes:
+      - name: nfs-volume
+        persistentVolumeClaim:
+          claimName: nfs-flex-vol-pv0001
