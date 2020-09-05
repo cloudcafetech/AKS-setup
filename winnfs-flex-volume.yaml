@@ -407,6 +407,7 @@ data:
         ## windows cmd
         dism /online /enable-feature /featurename:ServicesForNFS-ServerAndClient
         dism /online /enable-feature /featurename:ClientForNFS-Infrastructure
+      Make sure sufficient permission in NFS share (777 for UNIX)
       Now you can delete this Daemonset.
 ---
 apiVersion: apps/v1
@@ -446,10 +447,10 @@ spec:
         - pwsh.exe
         args:
         - /Command
-        - mkdir -Force c:\host\nfs-win~nfs.cmd;
-        - cp -Force c:\kubelet-plugins\flexvolume.ps1 c:\host\nfs-win~nfs.cmd;
-        - cp -Force c:\kubelet-plugins\nfs.cmd c:\host\nfs-win~nfs.cmd;
-        - cp -Force c:\kubelet-plugins\nfs.ps1 c:\host\nfs-win~nfs.cmd;
+        - mkdir -Force c:\host\$env:DRIVER~nfs.cmd;
+        - cp -Force c:\kubelet-plugins\flexvolume.ps1 c:\host\$env:DRIVER~nfs.cmd;
+        - cp -Force c:\kubelet-plugins\nfs.cmd c:\host\$env:DRIVER~nfs.cmd;
+        - cp -Force c:\kubelet-plugins\nfs.ps1 c:\host\$env:DRIVER~nfs.cmd;
         - cat c:\kubelet-plugins\Readme.md;
         - while ($true) {start-sleep -s 3600}
         securityContext:
@@ -471,3 +472,4 @@ spec:
         configMap:
           defaultMode: 420
           name: flexvolume-nfs-windows
+          
