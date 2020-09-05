@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nfs
+  name: nfs-flex-vol
   labels:
-    app: nfs
+    app: nfs-flex-vol
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nfs
+      app: nfs-flex-vol
   template:
     metadata:
       labels:
-        app: nfs
+        app: nfs-flex-vol
     spec:
       nodeSelector:
         beta.kubernetes.io/os: windows
@@ -22,11 +22,24 @@ spec:
         value: "windows"
         effect: "NoSchedule"
       containers:
-      - name: nfs
+      - name: nfs-flex-vol
         image: mcr.microsoft.com/powershell:7.1.0-preview.5-nanoserver-1809
         imagePullPolicy: IfNotPresent
-        command: ["pwsh.exe"]
-        args: ["/Command", "ping", "-t", "127.0.0.1", ">>", "/d/test.txt"]
+        command:
+        - pwsh.exe
+        args:
+        - /Command
+        - Write-Output "$env:POD_NAME Started on $env:NODENAME at $(Get-Date)" >> /d/test.txt;
+        - ping -t 127.0.0.1 >> /d/test.txt
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: NODENAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - name: nfs-volume
           mountPath: /d
@@ -39,5 +52,6 @@ spec:
             # \\servername\share\path  (\'s will need to be escaped)
             # nfs://servername/share/path
             # //servername/share/path
-            # source: "nfs://xxx-xxx.cn-shenzhen.nas.aliyuncs.com/!"
+            #source: "nfs://xxx-xxx.cn-shenzhen.nas.aliyuncs.com/!"
             source: "nfs://10.20.1.4/var/nfs/general"
+            
