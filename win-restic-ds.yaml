@@ -7,8 +7,8 @@ data:
   resticbackup.ps1: |-
     # Restic Pwershell Backup Script
     . c:\scripts\resticconfig.ps1
-    
-    # Create log directory if it doesn't exit 
+
+    # Create log directory if it doesn't exit
     if(-not (Test-Path $LogPath)) {
       New-Item -ItemType Directory -Force -Path $LogPath | Out-Null
       Write-Output "[[Init]] Repository successfully initialized."
@@ -27,10 +27,10 @@ data:
     else {
       Write-Warning "[[Init]] Repository initialization failed. Check errors and resolve."
     }
- 
+
     # Run the backup
     Write-Output "Starting Backup .."
-    & $ResticExe --verbose -q backup $hostbkppath $podbkppath --tag $tag --exclude-file=$WindowsExcludeFile --exclude-file=$LocalExcludeFile 
+    & $ResticExe --verbose -q backup $hostbkppath $podbkppath --tag $tag --exclude-file=$WindowsExcludeFile --exclude-file=$LocalExcludeFile
     if(-not $?) {
       Write-Output "[[Backup]] Completed with errors"
       $return_value = $false
@@ -40,24 +40,24 @@ data:
     # Prune old backups
     & $ResticExe forget -q --prune --keep-hourly 5 --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --keep-yearly 5
     & $ResticExe forget --keep-hourly 24 --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --keep-yearly 7
-    
+
   resticrestore.ps1: |-
     # Restic Pwershell Restore Script
     . c:\scripts\resticconfig.ps1
-    
+
   resticschedule.ps1: |-
     # Restic Pwershell Schedule Script
     . c:\scripts\resticconfig.ps1
-    
+
   resticconfig.ps1: |-
-    
+
     # Custom variables
     $DateStr = $(get-date -f dd-MM-yyyy-HHmm)
     $server = $env:NODENAME
     $pod = $env:POD_NAME
     $namespace = $env:NAMESPACE
     $podbkppath = $env:POD_BACKUP_DIR_PATH
-    $hostbkppath = "C:\host_pods"
+    $hostbkppath = "C:\aks"
     $tag = $server
 
     # Backup configuration variables
@@ -87,7 +87,7 @@ metadata:
 data:
   AWS_ACCESS_KEY_ID: "admin"
   AWS_SECRET_ACCESS_KEY: "admin2675"
-  RESTIC_REPOSITORY: "s3:http://<MinIo-Server-IP>:9000/aks-cluster/restic"
+  RESTIC_REPOSITORY: "s3:http://<MinIO-Server>:9000/aks-cluster/restic"
   RESTIC_PASSWORD: "admin2675"
 ---
 apiVersion: apps/v1
@@ -108,10 +108,12 @@ spec:
     spec:
       containers:
       - name: win-restic
-        image: prasenforu/resticwin:v0.1
-        ports:
-        - name: http
-          containerPort: 9999
+        image: prasenforu/resticwin:v0.2
+        command:
+        - pwsh.exe
+        args:
+        - /Command
+        - while ($true) {start-sleep -s 3600}
         env:
         - name: POD_BACKUP_DIR_PATH
           value: "c:\test"
