@@ -1,6 +1,30 @@
-FROM mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2019
-RUN powershell Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'));choco install vim -y;exit
+# escape=`
+# Args used by from statements must be defined here
+ARG InstallerVersion=nanoserver-1809
+ARG InstallerRepo=mcr.microsoft.com/powershell
+# Use powershell with nanoserver
+FROM ${InstallerRepo}:$InstallerVersion
+USER ContainerAdministrator
+# In the following line, the /M is required to address a known Docker issue in Windows Nano Server 2019.
+RUN setx PATH "%PATH%;%ProgramFiles%\PowerShell;" /M
+#Pull in netapi32.dll from servercore
+## FROM mcr.microsoft.com/windows/servercore as core
+COPY --from=mcr.microsoft.com/windows/servercore:1809 ["\\Windows\\System32\\netapi32.dll", "\\Windows\\System32"]
+# intialize powershell module cache
+RUN pwsh `
+-NoLogo `
+-NoProfile `
+-Command " `
+$stopTime = (get-date).AddMinutes(15); `
+$ErrorActionPreference = 'Stop' ; `
+$ProgressPreference = 'SilentlyContinue' ; `
+while(!(Test-Path -Path $env:PSModuleAnalysisCachePath)) { `
+Write-Host "'Waiting for $env:PSModuleAnalysisCachePath'" ; `
+if((get-date) -gt $stopTime) { throw 'timout expired'} `
+Start-Sleep -Seconds 6 ; `
+}"
 RUN mkdir C:\restic
 WORKDIR "C:\restic"
 COPY . .
-RUN setx path '%path%;c:\tools\vim\vim82;c:\restic;c:\scripts'
+RUN setx PATH "%PATH%;%ProgramFiles%\PowerShell;c:\restic;c:\scripts" /M
+CMD ["pwsh.exe"]
