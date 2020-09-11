@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: nfs-client
+  name: nfs-client
+spec:
+  containers:
+  - image: prasenforu/nfs-client:v0.1
+    imagePullPolicy: Always
+    name: nfs-client
+    env:
+    - name: PROVISIONER_NAME
+      value: kubenfs	
+    - name: NFS_SERVER
+      value: 10.20.1.4
+    - name: NFS_PATH
+      value: /var/nfs/general
+    - name: FOLDER
+      value: default-test	  
+    volumeMounts:
+    - name: nfs-client-root
+      mountPath: /mount
+  volumes:
+  - name: nfs-client-root
+    nfs:
+      server: 10.20.1.4
+      path: /var/nfs/general	  
+  nodeSelector:
+    beta.kubernetes.io/os: linux
