@@ -1,0 +1,174 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: restic-ps-scripts
+data:
+  resticbackup.ps1: |-
+    # Restic Pwershell Backup Script
+    . c:\scripts\resticconfig.ps1
+
+    # Run the backup
+    Write-Output "Starting Backup .."
+    & $ResticExe --verbose -q backup $podbkppath --tag $tag
+    if(-not $?) {
+      Write-Output "[[Backup]] Completed with errors"
+      $return_value = $false
+    }
+    Write-Output "Backup Completed .."
+
+    # Prune old backups
+    & $ResticExe forget -q --prune --keep-hourly 5 --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --keep-yearly 5
+    & $ResticExe forget --keep-hourly 24 --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --keep-yearly 7
+
+  resticrestore.ps1: |-
+    # Restic Pwershell Restore Script
+    . c:\scripts\resticconfig.ps1
+
+    # Run the restore
+    Write-Output "Starting Restoration .."
+    & $ResticExe --verbose -q restore latest --tag $tag --target $podrespath
+    if(-not $?) {
+      Write-Output "[[Restore]] Completed with errors"
+      $return_value = $false
+    }
+    #Copy-Item -Force C:\restore\C\backup\*.* $podbkppath
+    Write-Output "Restore Completed .."
+
+  resticschedule.ps1: |-
+    # Restic Pwershell Schedule Script
+    . c:\scripts\resticconfig.ps1
+
+  resticconfig.ps1: |-
+
+    # Custom variables
+    $DateStr = $(get-date -f dd-MM-yyyy-HHmm)
+    $server = $env:NODENAME
+    $pod = $env:POD_NAME
+    $app = $env:APPNAME
+    $namespace = $env:NAMESPACE
+    $podbkppath = "C:\$env:POD_BACKUP_DIR_PATH"
+    $podrespath = "C:\$env:POD_RESTORE_DIR_PATH"
+    $tag = "$server-$namespace-$app"
+
+    # Backup configuration variables
+    $ExeName = "restic.exe"
+    $InstallPath = "C:\restic"
+    $ResticExe = Join-Path $InstallPath $ExeName
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: win-restic-cm
+data:
+  AWS_ACCESS_KEY_ID: "admin"
+  AWS_SECRET_ACCESS_KEY: "admin2675"
+  RESTIC_REPOSITORY: "s3:http://<Minio-Server>:9000/aks-cluster/restic"
+  RESTIC_PASSWORD: "admin2675"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-flexvol
+  labels:
+    app: nfs-flexvol
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-flexvol
+  template:
+    metadata:
+      labels:
+        app: nfs-flexvol
+    spec:
+      nodeSelector:
+        beta.kubernetes.io/os: windows
+      tolerations:
+      - key: "os"
+        operator: "Equal"
+        value: "windows"
+        effect: "NoSchedule"
+      containers:
+      - name: nfs-flexvol
+        image: mcr.microsoft.com/powershell:7.1.0-preview.5-nanoserver-1809
+        imagePullPolicy: IfNotPresent
+        command:
+        - pwsh.exe
+        args:
+        - /Command
+        - Write-Output "$env:POD_NAME Started on $env:NODENAME at $(Get-Date)" >> /d/test.txt;
+        - ping -t 127.0.0.1 >> /d/test.txt
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: NODENAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        volumeMounts:
+        - name: nfs-volume
+          mountPath: /d
+      - name: win-restic
+        image: prasenforu/resticwin:v0.2
+        command:
+        - pwsh.exe
+        args:
+        - /Command
+        - while ($true) {start-sleep -s 3600}
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: NODENAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: APPNAME
+          value: "nfs-flexvol"
+        - name: POD_BACKUP_DIR_PATH
+          value: "backup"
+        - name: POD_RESTORE_DIR_PATH
+          value: "restore"
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            configMapKeyRef:
+              name: win-restic-cm
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: win-restic-cm
+              key: AWS_SECRET_ACCESS_KEY
+        - name: RESTIC_REPOSITORY
+          valueFrom:
+            configMapKeyRef:
+              name: win-restic-cm
+              key: RESTIC_REPOSITORY
+        - name: RESTIC_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: win-restic-cm
+              key: RESTIC_PASSWORD
+        volumeMounts:
+        - name: nfs-volume
+          mountPath: /backup
+        - name: scripts
+          mountPath: c:\scripts\
+      volumes:
+      - name: scripts
+        configMap:
+          name: restic-ps-scripts
+      - name: nfs-volume
+        flexVolume:
+          driver: "nfs-win/nfs.cmd"
+          options:
+            # source should be following formats
+            # nfs://servername/share/path
+            source: "nfs://10.20.1.4/var/nfs/general/default-nfstest/"
